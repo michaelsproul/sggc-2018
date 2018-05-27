@@ -20,7 +20,8 @@ contract Sort {
         if (input.length <= 1) {
             return input;
         }
-        uint[] memory result = new uint[](input.length);
+        uint n = input.length;
+        uint[] memory result = new uint[](n);
 
         uint[] memory A = input;
         uint[] memory B = result;
@@ -36,17 +37,16 @@ contract Sort {
 
         // Bottom-up merge sort
         // Based on pseudo-code from https://en.wikipedia.org/wiki/Merge_sort
-        for (uint width = 1; width < input.length; width = width + width) {
+        for (uint width = 1; width < n; width = width + width) {
             // Take slices of length `width` along array A (these slices are sorted)
-            for (uint i = 0; i < input.length; i = sliceEnd2) {
-                // Merge A[i:i + width] with A[i + width: i + 2 * width]
-                // writing the result to B
+            for (uint i = 0; i < n; i = sliceEnd2) {
+                // Merge A[i:i + width] with A[i + width: i + 2 * width] writing the result to B
                 j2 = i + width;
                 sliceEnd1 = j2;
-                // sliceEnd2 = min(i + 2 * width, input.length)
+                // sliceEnd2 = min(i + 2 * width, n)
                 sliceEnd2 = j2 + width;
-                if (sliceEnd2 > input.length) {
-                    sliceEnd2 = input.length;
+                if (sliceEnd2 > n) {
+                    sliceEnd2 = n;
                 }
                 for (uint k = i; k < sliceEnd2; k++) {
                     if (i < sliceEnd1 && (j2 >= sliceEnd2 || A[i] <= A[j2])) {
