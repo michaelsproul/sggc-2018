@@ -8,15 +8,6 @@
 pragma solidity 0.4.24;
 
 contract Sort {
-    // TODO: optimize
-    function min(uint x, uint y) private pure returns (uint) {
-        if (x <= y) {
-            return x;
-        } else {
-            return y;
-        }
-    }
-
     /**
      * @dev Sorts a list of integers in ascending order.
      *
@@ -33,19 +24,19 @@ contract Sort {
 
         uint[] memory A = input;
         uint[] memory B = result;
-        uint[] memory temp; // for swaps
+        // For swaps
+        uint[] memory temp;
 
-        // Index into the first slice
+        // Indexes into the slices
         uint j1;
-        // Index into the second slice
         uint j2;
-        // End of slices
+        // Ends of the slices
         uint sliceEnd1;
         uint sliceEnd2;
 
         // Bottom-up merge sort
         // Based on pseudo-code from https://en.wikipedia.org/wiki/Merge_sort
-        for (uint width = 1; width < input.length; width *= 2) {
+        for (uint width = 1; width < input.length; width = width + width) {
             // Take slices of length `width` along array A (these slices are sorted)
             for (uint i = 0; i < input.length; i = sliceEnd2) {
                 // Merge A[i:i + width] with A[i + width: i + 2 * width]
@@ -53,7 +44,11 @@ contract Sort {
                 j1 = i;
                 j2 = i + width;
                 sliceEnd1 = j2;
-                sliceEnd2 = min(i + 2 * width, input.length);
+                // sliceEnd2 = min(i + 2 * width, input.length)
+                sliceEnd2 = j2 + width;
+                if (sliceEnd2 > input.length) {
+                    sliceEnd2 = input.length;
+                }
                 for (uint k = i; k < sliceEnd2; k++) {
                     if (j1 < sliceEnd1 && (j2 >= sliceEnd2 || A[j1] <= A[j2])) {
                         B[k] = A[j1];

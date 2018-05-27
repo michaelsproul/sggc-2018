@@ -9,7 +9,7 @@ def get_gas_cost(chain, txn_hash):
 def test_gas(chain):
     contract = get_contract(chain)
 
-    txn_hash = contract.transact().sort([i for i in range(1000)])
+    txn_hash = contract.transact().sort([128037912837 - i for i in range(901)])
     gas_cost = get_gas_cost(chain, txn_hash)
 
     print("Gas cost: {}".format(gas_cost))
