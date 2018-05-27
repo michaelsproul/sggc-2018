@@ -41,7 +41,11 @@ contract Sort {
             // Take slices of length `width` along array A (these slices are sorted)
             for (uint i = 0; i < n; i = sliceEnd2) {
                 // Merge A[i:i + width] with A[i + width: i + 2 * width] writing the result to B
+                // j2 = min(i + width, n)
                 j2 = i + width;
+                if (j2 > n) {
+                    j2 = n;
+                }
                 sliceEnd1 = j2;
                 // sliceEnd2 = min(i + 2 * width, n)
                 sliceEnd2 = j2 + width;
@@ -49,7 +53,7 @@ contract Sort {
                     sliceEnd2 = n;
                 }
                 for (uint k = i; k < sliceEnd2; k++) {
-                    if (i < sliceEnd1 && (j2 >= sliceEnd2 || A[i] <= A[j2])) {
+                    if (i < sliceEnd1 && (j2 == sliceEnd2 || A[i] < A[j2])) {
                         B[k] = A[i];
                         i++;
                     } else {
