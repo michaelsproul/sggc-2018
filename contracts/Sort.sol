@@ -3,6 +3,8 @@
  *
  * This work is licensed under Creative Commons Attribution ShareAlike 3.0.
  * https://creativecommons.org/licenses/by-sa/3.0/
+ *
+ * Implementation by Michael Sproul (https://sproul.xyz)
  */
 
 pragma solidity 0.4.24;
@@ -21,6 +23,35 @@ contract Sort {
             return input;
         }
         uint n = input.length;
+        uint j;
+        uint s1;
+        uint s2;
+
+        // Selection sort on small inputs (n=22 or less determined empirically)
+        if (n < 23) {
+            // p is the index of the first unsorted element
+            // q is the index for min-finding loop
+            // s1 is the min element for this iteration
+            // s2 is the index of the min element
+            // j is used as a temporary
+
+            for (uint p = 0; p < n; p++) {
+                s1 = input[p];
+                s2 = p;
+                for (uint q = p + 1; q < n; q++) {
+                    j = input[q];
+                    if (j < s1) {
+                        s1 = j;
+                        s2 = q;
+                    }
+                }
+                input[s2] = input[p];
+                input[p] = s1;
+            }
+
+            return input;
+        }
+
         uint[] memory result = new uint[](n);
 
         uint[] memory A = input;
@@ -28,37 +59,34 @@ contract Sort {
         // For swaps
         uint[] memory temp;
 
-        // Index into the second slice
         // As an optimisation, i is (ab)used as the index into the first slice
-        uint j2;
-        // Ends of the slices
-        uint sliceEnd1;
-        uint sliceEnd2;
+        // j is the index into the second slice
+        // Ends of the slices are s1 and s2
 
         // Bottom-up merge sort
         // Based on pseudo-code from https://en.wikipedia.org/wiki/Merge_sort
         for (uint width = 1; width < n; width = width + width) {
             // Take slices of length `width` along array A (these slices are sorted)
-            for (uint i = 0; i < n; i = sliceEnd2) {
+            for (uint i = 0; i < n; i = s2) {
                 // Merge A[i:i + width] with A[i + width: i + 2 * width] writing the result to B
-                // j2 = min(i + width, n)
-                j2 = i + width;
-                if (j2 > n) {
-                    j2 = n;
+                // j = min(i + width, n)
+                j = i + width;
+                if (j > n) {
+                    j = n;
                 }
-                sliceEnd1 = j2;
-                // sliceEnd2 = min(i + 2 * width, n)
-                sliceEnd2 = j2 + width;
-                if (sliceEnd2 > n) {
-                    sliceEnd2 = n;
+                s1 = j;
+                // s2 = min(i + 2 * width, n)
+                s2 = j + width;
+                if (s2 > n) {
+                    s2 = n;
                 }
-                for (uint k = i; k < sliceEnd2; k++) {
-                    if (i < sliceEnd1 && (j2 == sliceEnd2 || A[i] < A[j2])) {
+                for (uint k = i; k < s2; k++) {
+                    if (i < s1 && (j == s2 || A[i] < A[j])) {
                         B[k] = A[i];
                         i++;
                     } else {
-                        B[k] = A[j2];
-                        j2++;
+                        B[k] = A[j];
+                        j++;
                     }
                 }
             }

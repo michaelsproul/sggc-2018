@@ -6,13 +6,28 @@ def get_contract(chain):
 def get_gas_cost(chain, txn_hash):
     return chain.wait.for_receipt(txn_hash)["gasUsed"]
 
-def test_gas(chain):
+def test_gas_big_array(chain):
     contract = get_contract(chain)
 
     txn_hash = contract.transact().sort([128037912837 - i for i in range(901)])
     gas_cost = get_gas_cost(chain, txn_hash)
 
     print("Gas cost: {}".format(gas_cost))
+
+def test_gas_lots(chain):
+    contract = get_contract(chain)
+
+    reps = 5
+
+    print("")
+    for n in range(2, 100):
+        print("{}".format(n), end="")
+        for _ in range(reps):
+            array = [randint(0, 2**256 - 1) for _ in range(n)]
+            txn_hash = contract.transact().sort(array)
+            gas_cost = get_gas_cost(chain, txn_hash)
+            print(",{}".format(gas_cost), end="")
+        print("")
 
 def test_simple(chain):
     contract = get_contract(chain)
@@ -25,8 +40,8 @@ def test_simple(chain):
 def test_random(chain):
     contract = get_contract(chain)
 
-    reps = 100
-    max_len = 50
+    reps = 1000
+    max_len = 65
 
     for _ in range(reps):
         length = randint(1, max_len)
