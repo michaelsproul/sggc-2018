@@ -52,16 +52,15 @@ contract Sort {
             return input;
         }
 
-        uint[] memory result = new uint[](n);
+        uint[] memory scratch = new uint[](n);
 
-        uint[] memory A = input;
-        uint[] memory B = result;
         // For swaps
         uint[] memory temp;
 
-        // As an optimisation, i is (ab)used as the index into the first slice
+        // As an optimisation, i is used as the index into the first slice
         // j is the index into the second slice
         // Ends of the slices are s1 and s2
+        // A=input, B=scratch
 
         // Bottom-up merge sort
         // Based on pseudo-code from https://en.wikipedia.org/wiki/Merge_sort
@@ -81,22 +80,22 @@ contract Sort {
                     s2 = n;
                 }
                 for (uint k = i; k < s2; k++) {
-                    if (i < s1 && (j == s2 || A[i] < A[j])) {
-                        B[k] = A[i];
+                    if (i < s1 && (j == s2 || input[i] < input[j])) {
+                        scratch[k] = input[i];
                         i++;
                     } else {
-                        B[k] = A[j];
+                        scratch[k] = input[j];
                         j++;
                     }
                 }
             }
 
-            // Swap A and B
-            temp = A;
-            A = B;
-            B = temp;
+            // Swap input and scratch (input = A, scratch = B)
+            temp = input;
+            input = scratch;
+            scratch = temp;
         }
 
-        return A;
+        return input;
     }
 }
