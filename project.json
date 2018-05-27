@@ -1,0 +1,28 @@
+{
+    "version": "8",
+    "compilation": {
+        "contracts_source_dirs": ["./contracts"],
+        "import_remappings": [],
+        "backend":{
+              "class":"populus.compilation.backends.SolcStandardJSONBackend",
+              "settings":{
+                 "stdin":{
+                    "optimizer":{
+                       "enabled":true,
+                       "runs":1000
+                    },
+                    "outputSelection":{
+                       "*":{
+                          "*":[
+                             "abi",
+                             "metadata",
+                             "evm.bytecode",
+                             "evm.deployedBytecode"
+                          ]
+                       }
+                    }
+                }
+            }
+        }
+    }
+}
