@@ -11,7 +11,7 @@ def to_bytes(s: str) -> bytes:
 def test_simple(chain):
     contract = get_contract(chain)
 
-    test_cases = ["deadbeef", "e4"]
+    test_cases = ["deadbeef", "e4", "0ABCDEF0aaadfF"]
 
     for x in test_cases:
         assert to_bytes(contract.call().decode(x)) == bytes.fromhex(x)

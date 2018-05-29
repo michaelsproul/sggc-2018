@@ -27,13 +27,12 @@ contract HexDecoder {
         uint n = inputBytes.length;
         uint m = n / 2;
         output = new bytes(m);
-        uint j;
-        uint8 b;
-        uint8 c;
+        uint b;
+        uint c;
         for (uint i = 0; i < m; i++) {
-            // ith byte from characters j = 2i and j = 2i + 1
-            j = i + i;
-            b = uint8(inputBytes[j]);
+            // ith byte from characters c = 2i and c = 2i + 1
+            c = i + i;
+            b = uint(inputBytes[c]);
             // 57 = '9'
             if (b < 58) {
                 b = (b - 48) << 4;
@@ -46,8 +45,8 @@ contract HexDecoder {
                 b = (b - 87) << 4;
             }
 
-            j++;
-            c = uint8(inputBytes[j]);
+            c++;
+            c = uint(inputBytes[c]);
             // 57 = '9'
             if (c < 58) {
                 c = (c - 48);
