@@ -33,30 +33,24 @@ contract HexDecoder {
             // ith byte from characters c = 2i and c = 2i + 1
             c = i + i;
             b = uint(inputBytes[c]);
-            // 57 = '9'
-            if (b < 58) {
-                b = (b - 48) << 4;
+            // Largest byte is odd, '0'-'9'
+            if (b & 0x10 != 0) {
+                b = (b & 0x0F) << 4;
             }
-            // 70 = 'F'
-            else if (b <  71) {
-                b = (b - 55) << 4;
-            } else {
-                // a = 10
-                b = (b - 87) << 4;
+            // Otherwise, 'a'-'f' or 'A'-'F'
+            else {
+                b = ((b & 0x0F) + 9) << 4;
             }
 
             c++;
             c = uint(inputBytes[c]);
-            // 57 = '9'
-            if (c < 58) {
-                c = (c - 48);
+            // Largest byte is odd, '0'-'9'
+            if (c & 0x10 != 0) {
+                c = c & 0x0F;
             }
-            // 70 = 'F'
-            else if (c <  71) {
-                c = (c - 55);
-            } else {
-                // a = 10
-                c = (c - 87);
+            // Otherwise, 'a'-'f' or 'A'-'F'
+            else {
+                c = (c & 0x0F) + 9;
             }
 
             output[i] = byte(b | c);
