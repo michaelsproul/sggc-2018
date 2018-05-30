@@ -27,33 +27,29 @@ contract HexDecoder {
         uint n = inputBytes.length;
         uint m = n / 2;
         output = new bytes(m);
-        uint b;
-        uint c;
+        uint8 b;
+        uint8 c;
         for (uint i = 0; i < m; i++) {
             // ith byte from characters c = 2i and c = 2i + 1
-            c = i + i;
-            b = uint(inputBytes[c]);
+            b = uint8(inputBytes[i + i]);
             // Largest byte is odd, '0'-'9'
             if (b & 0x10 != 0) {
-                b = (b & 0x0F) << 4;
+                b = 16 * (b & 0x0F);
             }
             // Otherwise, 'a'-'f' or 'A'-'F'
             else {
-                b = ((b & 0x0F) + 9) << 4;
+                b = 16 * ((b & 0x0F) + 9);
             }
 
-            c++;
-            c = uint(inputBytes[c]);
+            c = uint8(inputBytes[i + i + 1]);
             // Largest byte is odd, '0'-'9'
             if (c & 0x10 != 0) {
-                c = c & 0x0F;
+                output[i] = byte(b | (c & 0x0F));
             }
             // Otherwise, 'a'-'f' or 'A'-'F'
             else {
-                c = (c & 0x0F) + 9;
+                output[i] = byte(b | ((c & 0x0F) + 9));
             }
-
-            output[i] = byte(b | c);
         }
 
         return output;
