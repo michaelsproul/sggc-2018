@@ -1,0 +1,51 @@
+/**
+ * This file is part of the 1st Solidity Gas Golfing Contest.
+ *
+ * This work is licensed under Creative Commons Attribution ShareAlike 3.0.
+ * https://creativecommons.org/licenses/by-sa/3.0/
+ */
+
+pragma solidity 0.4.24;
+
+contract IndexOf {
+    /**
+     * @dev Returns the index of the first occurrence of `needle` in `haystack`,
+     *      or -1 if `needle` is not found in `haystack`.
+     *
+     * Input strings may be of any length <2^255.
+     *
+     * @param haystack_s The string to search.
+     * @param needle_s The string to search for.
+     * @return The index of `needle` in `haystack`, or -1 if not found.
+     */
+    // Gas: 1372734
+    function indexOf(string haystack_s, string needle_s) public pure returns (int) {
+        bytes memory haystack = bytes(haystack_s);
+        bytes memory needle = bytes(needle_s);
+        uint n = haystack.length;
+        uint m = needle.length;
+
+        if (n < m) {
+            return -1;
+        }
+
+        uint stop = n - m + 1;
+
+        for (uint i = 0; i < stop; i++) {
+            // Check if needle occurs at index i in haystack
+            bool matched = true;
+            for (uint j = 0; j < m; j++) {
+                if (haystack[i + j] != needle[j]) {
+                    matched = false;
+                    break;
+                }
+            }
+
+            if (matched) {
+                return int(i);
+            }
+        }
+
+        return -1;
+    }
+}
