@@ -22,22 +22,38 @@ contract Unique {
 
         uint i;
         uint num_uniq;
+        bool seen_zero;
 
-        for (i = 0; i < n; i++) {
+        uint[] memory hashmap = new uint[](n);
+
+        for (; i < n; i++) {
             uint val = input[i];
 
-            bool is_duplicate = false;
+            if (val != 0) {
+                // TODO: consider using a cheaper hash function
+                uint hash_idx = uint(keccak256(abi.encodePacked(val)));
 
-            for (uint j = 0; j < num_uniq; j++) {
-                if (val == input[j]) {
-                    is_duplicate = true;
-                    break;
+                for (uint j = 0; j < n; j++) {
+                    uint idx = (hash_idx + j) % n;
+
+                    uint bucket_val = hashmap[idx];
+
+                    // Found our element => it's a duplicate, skip it and continue outer loop.
+                    if (bucket_val == val) {
+                        break;
+                    }
+                    // Found an empty slot => it's unique, store it and continue outer loop.
+                    else if (bucket_val == 0) {
+                        hashmap[idx] = val;
+                        input[num_uniq] = val;
+                        num_uniq = num_uniq + 1;
+                        break;
+                    }
                 }
-            }
-
-            if (!is_duplicate) {
-                input[num_uniq] = val;
-                num_uniq++;
+            } else if (!seen_zero) {
+                seen_zero = true;
+                input[num_uniq] = 0;
+                num_uniq = num_uniq + 1;
             }
         }
 
