@@ -20,38 +20,19 @@ contract HexDecoder {
      * @return The decoded output.
      */
     function decode(string input) public pure returns (bytes output) {
-        // 0 in ASCII is 48
-        // A in ASCII is 65
-        // a in ASCII is 97
         bytes memory inputBytes = bytes(input);
         uint n = inputBytes.length;
         uint m = n / 2;
         output = new bytes(m);
-        uint8 b;
-        uint8 c;
         for (uint i = 0; i < m; i++) {
             // ith byte from characters c = 2i and c = 2i + 1
-            b = uint8(inputBytes[i + i]);
-            // Largest byte is odd, '0'-'9'
-            if (b & 0x10 != 0) {
-                b = 16 * (b & 0x0F);
-            }
-            // Otherwise, 'a'-'f' or 'A'-'F'
-            else {
-                b = 16 * ((b & 0x0F) + 9);
-            }
-
-            c = uint8(inputBytes[i + i + 1]);
-            // Largest byte is odd, '0'-'9'
-            if (c & 0x10 != 0) {
-                output[i] = byte(b | (c & 0x0F));
-            }
-            // Otherwise, 'a'-'f' or 'A'-'F'
-            else {
-                output[i] = byte(b | ((c & 0x0F) + 9));
-            }
+            // This beaut little formula works because only '0'-'9' have bit 0x10 set,
+            // so when you add 9 to them you get 25 + i.
+            // For 'a'-'f' and 'A'-'F', the + 9 takes 0x41 to 0x01 to 10 and so on.
+            output[i] = byte(
+                16 * addmod(uint(inputBytes[i + i]) & 0x1F, 9, 25) |
+                addmod(uint(inputBytes[i + i + 1]) & 0x1F, 9, 25)
+            );
         }
-
-        return output;
     }
 }
