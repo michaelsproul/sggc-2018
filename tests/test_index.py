@@ -14,3 +14,15 @@ def test_simple(chain):
     assert contract.call().indexOf("hell", "hello") == -1
     assert contract.call().indexOf("hell hell heck hell hella", "hello") == -1
 
+def test_match_tease(chain):
+    contract = get_contract(chain)
+
+    haystack = "a" * 1000 + "b"
+    needle = "a" * 50 + "b"
+
+    assert contract.call().indexOf(haystack, needle) == haystack.find(needle)
+
+    txn = contract.transact().indexOf(haystack, needle)
+    gas_cost = get_gas_cost(chain, txn)
+
+    print("Gas cost: {}".format(gas_cost))
