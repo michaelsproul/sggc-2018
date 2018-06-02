@@ -4,3 +4,4 @@ sggc
 *.swp
 .DS_Store
 *.xlsx
+*.evm

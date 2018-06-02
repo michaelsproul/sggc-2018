@@ -13,6 +13,7 @@ def test_simple(chain):
     assert contract.call().indexOf("hello world this is me", "world") == 6
     assert contract.call().indexOf("hell", "hello") == -1
     assert contract.call().indexOf("hell hell heck hell hella", "hello") == -1
+    assert contract.call().indexOf("hey", "") == 0
 
 def test_match_tease(chain):
     contract = get_contract(chain)

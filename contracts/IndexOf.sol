@@ -20,7 +20,6 @@ contract IndexOf {
      * @param needle_s The string to search for.
      * @return The index of `needle` in `haystack`, or -1 if not found.
      */
-    // Gas: 1372734
     function indexOf(string haystack_s, string needle_s) public pure returns (int) {
         bytes memory haystack = bytes(haystack_s);
         bytes memory needle = bytes(needle_s);
@@ -41,9 +40,10 @@ contract IndexOf {
         uint needle_hash = 0;
         uint substring_hash = 0;
         x = 1;
-        for (i = m; i > 0; i--) {
-            needle_hash = addmod(needle_hash, x * uint(needle[i - 1]), 101);
-            substring_hash = addmod(substring_hash, x * uint(haystack[i - 1]), 101);
+        for (i = m; i > 0; i = j) {
+            j = i - 1;
+            needle_hash = addmod(needle_hash, x * uint(needle[j]), 101);
+            substring_hash = addmod(substring_hash, x * uint(haystack[j]), 101);
             x = mulmod(256, x, 101);
         }
 
@@ -51,11 +51,11 @@ contract IndexOf {
 
         uint stop = n - m + 1;
 
-        for (i = 0; i < stop; i++) {
+        for (i = 0; i < stop; i = i + 1) {
             if (needle_hash == substring_hash) {
                 // Check that all the characters actually match
                 bool matched = true;
-                for (uint j = 0; j < m; j++) {
+                for (uint j = 0; j < m; j = j + 1) {
                     if (haystack[i + j] != needle[j]) {
                         matched = false;
                         break;
@@ -69,14 +69,13 @@ contract IndexOf {
 
             if (i != stop - 1) {
                 // Else, update the hash for the next iteration
-                // 1. Multiply by 256 (move every character 'left')
-                substring_hash = mulmod(256, substring_hash, 101);
+                uint y = 256 * substring_hash;
 
                 // 2. Subtract the most significant char (position i)
-                substring_hash = addmod(substring_hash, 101 - mulmod(x, uint(haystack[i]), 101), 101);
+                uint z = y + x * (303 - uint(haystack[i]));
 
                 // 3. Add the next char
-                substring_hash = addmod(substring_hash, uint(haystack[i + m]) , 101);
+                substring_hash = addmod(z, uint(haystack[i + m]), 101);
             }
         }
 
