@@ -35,7 +35,7 @@ contract Unique {
                     continue;
                 }
                 prev_val = val;
-                uint hash_idx = uint(keccak256(abi.encodePacked(val)));
+                uint hash_idx = uint(sha3(val));
 
                 uint idx = hash_idx % n;
                 uint bucket_val = hashmap[idx];
