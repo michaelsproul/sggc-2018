@@ -25,5 +25,72 @@ contract BrainFuck {
      *          number of outputs produced by the program.
      */
     function execute(bytes program, bytes input) public pure returns (bytes res) {
+        // Instruction pointer
+        uint ip;
+        // Data pointer
+        uint dp;
+        // Input pointer
+        uint inp;
+        // Output pointer
+        uint op;
+        // Working memory
+        uint8[1024] memory data;
+
+        byte[1024] memory raw_output;
+
+        uint n = program.length;
+
+        uint[50] memory loop_stack;
+        uint loop_stack_len;
+
+        // Temp
+        byte v;
+
+        while (ip < n) {
+            byte ins = program[ip];
+
+            if (ins == '>') {
+                dp++;
+            } else if (ins == '<') {
+                dp--;
+            } else if (ins == '+') {
+                data[dp]++;
+            } else if (ins == '-') {
+                data[dp]--;
+            } else if (ins == '.') {
+                raw_output[op++] = byte(data[dp]);
+            } else if (ins == ',') {
+                data[dp] = uint8(input[inp++]);
+            } else if (ins == '[') {
+                // Push to the loop stack
+                loop_stack[loop_stack_len++] = ip;
+
+                // Run forwards to find the closing brace
+                if (data[dp] == 0) {
+                    ip++;
+                    v = program[ip];
+                    while (v != ']') {
+                        ip++;
+                        v = program[ip];
+                    }
+                }
+            } else if (ins == ']') {
+                if (data[dp] != 0) {
+                    // Jump back to last open brace
+                    ip = loop_stack[loop_stack_len - 1];
+                } else {
+                    // Pop from the loop stack
+                    loop_stack_len--;
+                }
+            }
+
+            ip++;
+        }
+
+        // Copy output to a smaller array
+        res = new bytes(op);
+        for (uint i = 0; i < op; i++) {
+            res[i] = raw_output[i];
+        }
     }
 }
