@@ -25,7 +25,8 @@ contract Unique {
         bool seen_zero;
         uint prev_val;
 
-        uint[] memory hashmap = new uint[](n);
+        uint hashmap_len = n + 50;
+        uint[] memory hashmap = new uint[](hashmap_len);
 
         for (; i < n; i++) {
             uint val = input[i];
@@ -35,23 +36,26 @@ contract Unique {
                     continue;
                 }
                 prev_val = val;
-                uint hash_idx = uint(sha3(val));
+                // djb2-style hashing
+                uint hash_idx = 5381;
+                hash_idx = hash_idx * 33 + (val & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000000000000000000);
+                hash_idx = hash_idx * 33 + (val & 0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
 
-                uint idx = hash_idx % n;
+                uint idx = hash_idx % hashmap_len;
                 uint bucket_val = hashmap[idx];
 
                 // If slot is empty, insert our val and add it to the list of uniq elements
                 if (bucket_val == 0) {
                     hashmap[idx] = val;
                     input[num_uniq] = val;
-                    num_uniq = num_uniq + 1;
+                    num_uniq++;
                 }
                 // Otherwise, if we hit some value that's not our value, keep searching.
                 // In the case where bucket_val == val, we don't need to do anything,
                 // so we can just continue the loop.
                 else if (bucket_val != val) {
                     for (uint j = 1; j < n; j++) {
-                        idx = (hash_idx + j) % n;
+                        idx = (hash_idx + j) % hashmap_len;
 
                         bucket_val = hashmap[idx];
 
@@ -63,7 +67,7 @@ contract Unique {
                         else if (bucket_val == 0) {
                             hashmap[idx] = val;
                             input[num_uniq] = val;
-                            num_uniq = num_uniq + 1;
+                            num_uniq++;
                             break;
                         }
                     }
@@ -71,7 +75,7 @@ contract Unique {
             } else if (!seen_zero) {
                 seen_zero = true;
                 input[num_uniq] = 0;
-                num_uniq = num_uniq + 1;
+                num_uniq++;
             }
         }
 
