@@ -46,6 +46,8 @@ contract BrainFuck {
         // Temp
         byte v;
 
+        uint depth;
+
         while (ip < n) {
             byte ins = program[ip];
 
@@ -67,9 +69,16 @@ contract BrainFuck {
 
                 // Run forwards to find the closing brace
                 if (data[dp] == 0) {
+                    depth = 0;
                     ip++;
                     v = program[ip];
-                    while (v != ']') {
+                    // Search until depth = 0 and v = ']'
+                    while (depth != 0 || v != ']') {
+                        if (v == '[') {
+                            depth++;
+                        } else if (v == ']') {
+                            depth--;
+                        }
                         ip++;
                         v = program[ip];
                     }
