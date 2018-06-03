@@ -1,3 +1,5 @@
+import random
+
 def get_contract(chain):
     return chain.provider.get_or_deploy_contract("HexDecoder")[0]
 
@@ -27,3 +29,24 @@ def test_big(chain):
     gas_used = get_gas_cost(chain, txn_hash)
 
     print("Gas used: {}".format(gas_used))
+
+alphabet = list("0123456789abcdefABCDEF")
+
+def test_gas_random(chain):
+    contract = get_contract(chain)
+
+    reps = 1
+
+    print("")
+
+    for length in range(2, 1000, 8):
+        print("{}".format(length), end="")
+
+        for _ in range(reps):
+            data = "".join(random.choices(alphabet, k=length))
+            txn = contract.transact().decode(data)
+            gas_cost = get_gas_cost(chain, txn)
+
+            print(",{}".format(gas_cost), end="")
+
+        print("")
