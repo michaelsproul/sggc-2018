@@ -21,18 +21,35 @@ contract HexDecoder {
      */
     function decode(string input) public pure returns (bytes output) {
         bytes memory inputBytes = bytes(input);
-        uint n = inputBytes.length;
-        uint m = n / 2;
+        uint m = inputBytes.length;
+        m = m / 2;
         output = new bytes(m);
-        for (uint i = 0; i < m; i++) {
-            // ith byte from characters c = 2i and c = 2i + 1
-            // This beaut little formula works because only '0'-'9' have bit 0x10 set,
-            // so when you add 9 to them you get 25 + i.
-            // For 'a'-'f' and 'A'-'F', the + 9 takes 0x41 to 0x01 to 10 and so on.
-            output[i] = byte(
-                16 * addmod(uint(inputBytes[i + i]) & 0x1F, 9, 25) |
-                addmod(uint(inputBytes[i + i + 1]) & 0x1F, 9, 25)
-            );
+        uint x;
+        uint y;
+        uint idx;
+        // Loop unrolling, for shits and giggles
+        for (uint i = 1; i < m; i = i + 2) {
+            // This little formula works because only '0'-'9' have bit 0x10 set,
+            // so when we mask and add 9 we get 25 + i = i (mod 25).
+            // For 'a'-'f' and 'A'-'F', the mask and add takes 0x41 -> 0x01 -> 10 and so on.
+            idx = i + i;
+            x = uint(inputBytes[idx - 2]);
+            x = 16 * addmod(x & 0x1F, 9, 25);
+            y = uint(inputBytes[idx - 1]);
+            output[i - 1] = byte(x | addmod(y & 0x1F, 9, 25));
+
+            x = uint(inputBytes[idx]);
+            x = 16 * addmod(x & 0x1F, 9, 25);
+            y = uint(inputBytes[idx + 1]);
+            output[i] = byte(x | addmod(y & 0x1F, 9, 25));
+        }
+
+        // If m is odd, fill in that last byte
+        if (m % 2 != 0) {
+            x = uint(inputBytes[m + m - 2]);
+            x = 16 * addmod(x & 0x1F, 9, 25);
+            y = uint(inputBytes[m + m - 1]);
+            output[i - 1] = byte(x | addmod(y & 0x1F, 9, 25));
         }
     }
 }
