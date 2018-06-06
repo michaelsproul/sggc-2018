@@ -57,3 +57,21 @@ def test_hello_world(chain):
 
     assert contract.call().execute(hello, b"") == "Hello World!\n"
 
+    txn = contract.transact().execute(hello, b"")
+    gas_cost = get_gas_cost(chain, txn)
+
+    print("\nGas cost: {}".format(gas_cost))
+
+def test_shift_left_and_right(chain):
+    contract = get_contract(chain)
+
+    program = b"><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>."
+
+    assert contract.call().execute(program, b"") == "\x01"
+
+    txn = contract.transact().execute(program, b"")
+    gas_cost = get_gas_cost(chain, txn)
+
+    print("Gas cost: {}".format(gas_cost))
+
+
