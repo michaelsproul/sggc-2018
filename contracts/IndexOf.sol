@@ -25,11 +25,15 @@ contract IndexOf {
         bytes memory needle = bytes(needle_s);
         uint n = haystack.length;
         uint m = needle.length;
-        uint i = m;
+        uint i = m - 1;
         uint stop = n - m;
-        uint j;
         bool matched;
         uint x = 1;
+        uint j;
+
+        if (m == 0) {
+            return 0;
+        }
 
         if (n < m) {
             return -1;
@@ -42,16 +46,31 @@ contract IndexOf {
 
         uint needle_hash;
         uint substring_hash;
-        for (; i != 0; i = j) {
-            j = i - 1;
-            needle_hash = addmod(needle_hash, x * uint(needle[j]), 101);
-            substring_hash = addmod(substring_hash, x * uint(haystack[j]), 101);
+
+        for (; i > 1; i = i - 2) {
+            needle_hash += x * uint(needle[i]);
+            substring_hash += x * uint(haystack[i]);
+            x *= 256;
+
+            needle_hash = addmod(needle_hash, x * uint(needle[i - 1]), 101);
+            substring_hash = addmod(substring_hash, x * uint(haystack[i - 1]), 101);
             x = mulmod(256, x, 101);
         }
 
+        // Hash the last one or two bytes
+        if (i != 0) {
+            needle_hash += x * uint(needle[i]);
+            substring_hash += x * uint(haystack[i]);
+            x *= 256;
+        }
+
+        needle_hash = addmod(needle_hash, x * uint(needle[0]), 101);
+        substring_hash = addmod(substring_hash, x * uint(haystack[0]), 101);
+        x = mulmod(256, x, 101);
+
         // x now equals 256^m
 
-        for (; i != stop; i++) {
+        for (i = 0; i != stop; i++) {
             if (needle_hash == substring_hash) {
                 // Check that all the characters actually match
                 matched = true;
@@ -71,9 +90,9 @@ contract IndexOf {
             // 1. Move all characters up a position by multiplying by 256
             // 2. Subtract the most significant char (position i) (add -256^m * char)
             // 3. Add the next char
-            uint z = 256 * substring_hash + x * (303 - uint(haystack[i]));
+            uint z = x * (303 - uint(haystack[i]));
 
-            substring_hash = addmod(z, uint(haystack[i + m]), 101);
+            substring_hash = addmod(256 * substring_hash + z, uint(haystack[i + m]), 101);
         }
 
         // Check for a match once more on the way out
